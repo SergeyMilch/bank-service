@@ -1,0 +1,8 @@
+Миграции из командной строки:
+liquibase --url="jdbc:postgresql://localhost:5432/your-db-name" \
+          --changeLogFile="migrations/changelog-master.xml" \
+          --username="your-username" --password="your-password" \
+          --driver=org.postgresql.Driver \
+          --classpath=./lib/postgresql-42.7.3.jar \
+          --logLevel=debug \
+          update

@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bank-service-app
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - default
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: ${POSTGRES_URL}
+
+  db:
+    image: postgres
+    container_name: bank-service-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - default
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d bank"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  liquibase:
+    image: liquibase/liquibase
+    container_name: bank-service-liquibase
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - default
+    volumes:
+      - ./migrations/changelog-master.xml:/liquibase/changelog-master.xml
+    command: >
+      --changeLogFile=changelog-master.xml
+      --url=${LIQUIBASE_URL}
+      --username=${POSTGRES_USER}
+      --password=${POSTGRES_PASSWORD}
+      update
+
+networks:
+  default:
+    driver: bridge

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- changeSet для создания таблицы -->
+    <changeSet id="1" author="yourname">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="bank_account"/>
+            </not>
+        </preConditions>
+        <createTable tableName="bank_account">
+            <column name="id" type="serial" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_bank_account"/>
+            </column>
+            <column name="balance" type="DECIMAL(10, 2)" defaultValue="1000.00">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- changeSet для вставки начальных данных -->
+    <changeSet id="2" author="yourname">
+        <preConditions onFail="MARK_RAN">
+            <tableIsEmpty tableName="bank_account"/>
+        </preConditions>
+        
+        <insert tableName="bank_account">
+            <column name="balance" valueNumeric="1000"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
