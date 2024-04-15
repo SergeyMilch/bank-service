@@ -47,9 +47,11 @@ func (t *TransactionAdapter) Exec(ctx context.Context, sql string, arguments ...
     return t.Tx.Exec(ctx, sql, arguments...)
 }
 
+// GetAccount получает данные о счете с блокировкой для обновления
 func (db *DB) GetAccount(ctx context.Context, tx Transaction, id int) (*models.Account, error) {
     account := &models.Account{}
-    row := tx.QueryRow(ctx, "SELECT id, balance FROM bank_account WHERE id = $1", id)
+    // Используем FOR UPDATE для блокировки записи
+    row := tx.QueryRow(ctx, "SELECT id, balance FROM bank_account WHERE id = $1 FOR UPDATE", id)
     err := row.Scan(&account.ID, &account.Balance)
     if err != nil {
         return nil, err
